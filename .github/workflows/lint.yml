@@ -30,8 +30,8 @@ jobs:
 
     - uses: hashicorp/setup-terraform@v1
     - name: Terraform Init
-        id: init
-        run: terraform init
+      id: init
+      run: terraform init
     - name: Show version
       run: tflint --version
 
