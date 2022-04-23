@@ -1,0 +1,35 @@
+{
+  "name": "users",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "AWS_XRAY_CONTEXT_MISSING=IGNORE_ERROR jest ./tests",
+    "build": "webpack",
+    "lint": "eslint ./src/",
+    "clean": "rimraf dist/",
+    "clean-build": "rimraf dist/ && npm run build"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/runtime": "^7.17.9",
+    "aws-sdk": "^2.1116.0",
+    "babel-jest": "^27.5.1",
+    "babel-loader": "^8.2.4",
+    "dotenv": "^16.0.0",
+    "eslint": "^8.13.0",
+    "jest": "^27.5.1",
+    "webpack-cli": "^4.9.2"
+  },
+  "dependencies": {
+    "amazon-cognito-identity-js": "^5.2.8",
+    "assert": "^2.0.0",
+    "aws-xray-sdk-core": "^3.3.5",
+    "cross-fetch": "^3.1.5",
+    "fs": "^0.0.1-security",
+    "util": "^0.12.4"
+  }
+}
