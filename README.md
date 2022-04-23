@@ -20,7 +20,7 @@ This is the terraform users module for my video streaming application
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.11.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.11 |
 
 ## Modules
 
