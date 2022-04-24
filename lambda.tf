@@ -25,6 +25,7 @@ module "register_lambda" {
   runtime       = "nodejs14.x"
   publish       = true
   source_path   = "${path.module}/functions/dist/register.js"
+  tracing_mode  = "Active"
   environment_variables = {
     CLIENT_ID     = aws_cognito_user_pool_client.client.id
     POOL_ID       = aws_cognito_user_pool.user_pool.id
@@ -44,6 +45,7 @@ module "confirm_register_lambda" {
   runtime       = "nodejs14.x"
   publish       = true
   source_path   = "${path.module}/functions/dist/confirmRegistration.js"
+  tracing_mode  = "Active"
   environment_variables = {
     CLIENT_ID     = aws_cognito_user_pool_client.client.id
     POOL_ID       = aws_cognito_user_pool.user_pool.id
