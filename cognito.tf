@@ -30,7 +30,6 @@ resource "aws_cognito_user_pool_client" "client" {
     "name",
     "nickname",
     "phone_number",
-    "phonenumber_verified",
     "picture",
     "preferred_username",
     "profile",
