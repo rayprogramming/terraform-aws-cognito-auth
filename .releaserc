@@ -1,15 +1,16 @@
 {
-  "branches": ["main", {
-    "name": "create-release-workflow",
-    "preleast": true
-  }],
+  "branches": [
+    "main",
+    {
+      "name": "create-release-workflow",
+      "preleast": true
+    }
+  ],
   "repositoryUrl": "git@github.com:rayprogramming/videoStreamer-users.git",
   "plugins": [
     "@semantic-release/commit-analyzer",
-    {
-      "preset": "conventionalcommits"
-    }
     "@semantic-release/release-notes-generator",
     "@semantic-release/github"
-  ]
+  ],
+  "ci": true
 }
