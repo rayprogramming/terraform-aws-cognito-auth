@@ -31,7 +31,7 @@ locals {
 }
 resource "null_resource" "build" {
   triggers = {
-    file_ids = join(", ", [for f in local.functions : filesha256("${path.module}/functions/dist/${f.file}.js")])
+    file_ids = join(", ", [for f in local.functions : filesha256("${path.module}/functions/src/${f.file}.js")])
   }
   provisioner "local-exec" {
     command = <<-EOF

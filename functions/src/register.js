@@ -33,39 +33,45 @@ const provider = new AWS.CognitoIdentityServiceProvider({
 });
 
 // Handler
-exports.handler = async function(event) {
+exports.handler = function(event, callback) {
   const segment = new AWSXRay.Segment("register_user");
   try {
     verifyBody(event.body);
   } catch (error) {
-    return JSON.stringify(error);
+    callback(new Error(error));
+    return false;
   }
   var params = {
     ClientId: process.env.CLIENT_ID,
     Password: event.body.password,
     Username: event.body.email,
-    UserAttributes: [{
-      Name: "email",
-      Value: event.body.email
-    },
-    {
-      Name: "phone_number",
-      Value: event.body.phone_number
-    }
+    UserAttributes: [
+      {
+        Name: "email",
+        Value: event.body.email
+      },
+      {
+        Name: "phone_number",
+        Value: event.body.phone_number
+      }
     ]
   };
   hashSecret(params);
-  let res;
-  await provider.signUp(params).promise()
+  provider.signUp(params).promise()
     .then(data => {
-      res = data;
+      segment.close();
+      callback(null, {
+        success: true,
+        data: data
+      });
+      return true;
     })
     .catch(err => {
-      res = {
-        error: "There was an error.",
-        message: err.message
-      };
+      segment.close();
+      callback(new Error(err));
+      return false;
+    }).finally(() => {
+      segment.close();
     });
-  segment.close();
-  return res;
+  return false;
 };
