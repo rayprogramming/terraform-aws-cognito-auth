@@ -1,6 +1,37 @@
+locals {
+  functions = {
+    confirm_register = {
+      file        = "confirmRegistration"
+      description = "Auth register confirm"
+      environment_variables = {
+        CLIENT_ID     = aws_cognito_user_pool_client.client.id
+        POOL_ID       = aws_cognito_user_pool.user_pool.id
+        CLIENT_SECRET = aws_cognito_user_pool_client.client.client_secret
+      }
+    }
+    "register" = {
+      file        = "register"
+      description = "Auth register"
+      environment_variables = {
+        CLIENT_ID     = aws_cognito_user_pool_client.client.id
+        POOL_ID       = aws_cognito_user_pool.user_pool.id
+        CLIENT_SECRET = aws_cognito_user_pool_client.client.client_secret
+      }
+    }
+    "login" = {
+      file        = "login"
+      description = "Login function"
+      environment_variables = {
+        CLIENT_ID     = aws_cognito_user_pool_client.client.id
+        POOL_ID       = aws_cognito_user_pool.user_pool.id
+        CLIENT_SECRET = aws_cognito_user_pool_client.client.client_secret
+      }
+    }
+  }
+}
 resource "null_resource" "build" {
   triggers = {
-    always_run = "${timestamp()}"
+    file_ids = join(", ", [for f in local.functions : filesha256("${path.module}/functions/dist/${f.file}.js")])
   }
   provisioner "local-exec" {
     command = <<-EOF
@@ -15,42 +46,28 @@ resource "null_resource" "build" {
     EOF
   }
 }
-module "register_lambda" {
-  depends_on    = [null_resource.build]
-  source        = "terraform-aws-modules/lambda/aws"
-  version       = "~> 3.1"
-  function_name = "${var.project_key}_register"
-  description   = "Auth register"
-  handler       = "register.handler"
-  runtime       = "nodejs14.x"
-  publish       = true
-  source_path   = "${path.module}/functions/dist/register.js"
-  tracing_mode  = "Active"
-  environment_variables = {
-    CLIENT_ID     = aws_cognito_user_pool_client.client.id
-    POOL_ID       = aws_cognito_user_pool.user_pool.id
-    CLIENT_SECRET = aws_cognito_user_pool_client.client.client_secret
-  }
-  tags = {
-    Name = "${var.project}-${var.env}"
-  }
+moved {
+  from = module.register_lambda
+  to   = module.lambdas["register"]
 }
-module "confirm_register_lambda" {
-  depends_on    = [null_resource.build]
-  source        = "terraform-aws-modules/lambda/aws"
-  version       = "~> 3.1"
-  function_name = "${var.project_key}_confirm_register"
-  description   = "Auth register confirm"
-  handler       = "confirmRegistration.handler"
-  runtime       = "nodejs14.x"
-  publish       = true
-  source_path   = "${path.module}/functions/dist/confirmRegistration.js"
-  tracing_mode  = "Active"
-  environment_variables = {
-    CLIENT_ID     = aws_cognito_user_pool_client.client.id
-    POOL_ID       = aws_cognito_user_pool.user_pool.id
-    CLIENT_SECRET = aws_cognito_user_pool_client.client.client_secret
-  }
+moved {
+  from = module.confirm_register_lambda
+  to   = module.lambdas["confirm_register"]
+}
+
+module "lambdas" {
+  for_each              = local.functions
+  depends_on            = [null_resource.build]
+  source                = "terraform-aws-modules/lambda/aws"
+  version               = "~> 3.1"
+  function_name         = "${var.project_key}_${each.key}"
+  description           = each.value.description
+  handler               = "${each.value.file}.handler"
+  runtime               = "nodejs14.x"
+  publish               = true
+  source_path           = "${path.module}/functions/dist/${each.value.file}.js"
+  tracing_mode          = "Active"
+  environment_variables = each.value.environment_variables
   tags = {
     Name = "${var.project}-${var.env}"
   }
