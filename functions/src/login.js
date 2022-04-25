@@ -39,6 +39,7 @@ exports.handler = function(event, callback) {
 
   cognitoUser.authenticateUser(authDetails).promise()
     .then(data => {
+      segment.close();
       callback(null, {
         success: true,
         data: data

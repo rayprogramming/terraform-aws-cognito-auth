@@ -12,7 +12,7 @@ const provider = new AWS.CognitoIdentityServiceProvider({
 });
 
 
-exports.handler = async function(event) {
+exports.handler = function(event, callback) {
   const segment = new AWSXRay.Segment("confirm_register_user");
   var params = {
     ClientId: process.env.CLIENT_ID,
@@ -20,18 +20,22 @@ exports.handler = async function(event) {
     Username: event.body.username
   };
   hashSecret(params);
-  let res;
-  await provider.confirmSignUp(params).promise()
+
+  provider.confirmSignUp(params).promise()
     .then(data => {
-      res = data;
+      segment.close();
+      callback(null, {
+        success: true,
+        data: data
+      });
+      return true;
     })
     .catch(err => {
-      res = {
-        error: "There was an error.",
-        message: err.message
-      };
+      segment.close();
+      callback(new Error(err));
+      return false;
+    }).finally(() => {
+      segment.close();
     });
-  segment.close();
-  console.log(res);
-  return res;
+  return false;
 };
