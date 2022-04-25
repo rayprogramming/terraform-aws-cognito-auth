@@ -11,11 +11,11 @@ module "api_gateway" {
 
   integrations = {
     "POST /register" = {
-      lambda_arn             = module.register_lambda.lambda_function_arn
+      lambda_arn             = module.lambdas["register"].lambda_function_arn
       payload_format_version = "2.0"
     }
     "POST /confirm" = {
-      lambda_arn             = module.confirm_register_lambda.lambda_function_arn
+      lambda_arn             = module.lambdas["confirm_register"].lambda_function_arn
       payload_format_version = "2.0"
     }
   }
