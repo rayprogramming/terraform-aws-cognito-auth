@@ -10,6 +10,7 @@ resource "aws_cognito_user_pool_client" "client" {
   user_pool_id          = aws_cognito_user_pool.user_pool.id
   access_token_validity = 60
   id_token_validity     = 60
+  generate_secret       = true
   explicit_auth_flows = [
     "ALLOW_ADMIN_USER_PASSWORD_AUTH",
     "ALLOW_CUSTOM_AUTH",
