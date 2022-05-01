@@ -1,0 +1,23 @@
+openapi: "3.0.1"
+info:
+  title: "videoStreamer-dev"
+  description: "Authentication API"
+  version: "2022-05-01 07:51:05UTC"
+servers:
+- url: "https://bkwb43pdx4.execute-api.us-east-2.amazonaws.com/{basePath}"
+  variables:
+    basePath:
+      default: ""
+tags:
+- name: "Name"
+paths:
+  /confirm:
+    post:
+      responses:
+        default:
+          description: "Default response for POST /confirm"
+  /register:
+    post:
+      responses:
+        default:
+          description: "Default response for POST /register"

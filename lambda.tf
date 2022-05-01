@@ -27,6 +27,10 @@ locals {
         CLIENT_SECRET = aws_cognito_user_pool_client.client.client_secret
       }
     }
+    "home_page" = {
+      file        = "home"
+      description = "Home Page function"
+    }
   }
 }
 resource "null_resource" "build" {
@@ -67,7 +71,7 @@ module "lambdas" {
   publish               = true
   source_path           = "${path.module}/functions/dist/${each.value.file}.js"
   tracing_mode          = "Active"
-  environment_variables = each.value.environment_variables
+  environment_variables = try(each.value.environment_variables, {})
   tags = {
     Name = "${var.project}-${var.env}"
   }

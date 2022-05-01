@@ -18,6 +18,14 @@ module "api_gateway" {
       lambda_arn             = module.lambdas["confirm_register"].lambda_function_arn
       payload_format_version = "2.0"
     }
+    "POST /login" = {
+      lambda_arn             = module.lambdas["login"].lambda_function_arn
+      payload_format_version = "2.0"
+    }
+    "GET /" = {
+      lambda_arn             = module.lambdas["home_page"].lambda_function_arn
+      payload_format_version = "2.0"
+    }
   }
 
   cors_configuration = {
@@ -29,4 +37,25 @@ module "api_gateway" {
   tags = {
     Name = "${var.project}-${var.env}"
   }
+}
+
+module "records" {
+  source  = "terraform-aws-modules/route53/aws//modules/records"
+  version = "~>2.0.0" # https://github.com/terraform-aws-modules/terraform-aws-route53/issues/59
+  providers = {
+    aws = aws.east-1
+  }
+
+  zone_id = data.aws_route53_zone.selected.zone_id
+
+  records = [
+    {
+      name = var.project_key
+      type = "A"
+      alias = {
+        name    = module.api_gateway.apigatewayv2_domain_name_configuration[0].target_domain_name
+        zone_id = module.api_gateway.apigatewayv2_domain_name_configuration[0].hosted_zone_id
+      }
+    }
+  ]
 }
