@@ -1,0 +1,54 @@
+openapi: "3.0.1"
+info:
+  title: "videoStreamer-dev"
+  description: "Authentication API"
+  version: "2022-05-01 07:51:05UTC"
+servers:
+- url: "https://auth.video.rayprogramming.com/{basePath}"
+  variables:
+    basePath:
+      default: ""
+tags:
+- name: "Name"
+components:
+  schemas:
+    Register:
+      description: "Register body"
+      type: object
+      properties:
+        email:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+        phone_number:
+          type: string
+  examples:
+    Register:
+      value:
+        email: example@example.com
+        username: Username
+        password: password
+        phone_number: "5555550555"
+
+paths:
+  /confirm:
+    post:
+      responses:
+        default:
+          description: "Default response for POST /confirm"
+  /register:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+            examples:
+              objectExample:
+                $ref: '#/components/examples/Register'
+
+      responses:
+        default:
+          description: "Default response for POST /register"
