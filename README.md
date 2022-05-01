@@ -32,6 +32,7 @@ This is the terraform users module for my video streaming application
 | <a name="module_api_gateway"></a> [api\_gateway](#module\_api\_gateway) | terraform-aws-modules/apigateway-v2/aws | ~> 1.7 |
 | <a name="module_api_log_group"></a> [api\_log\_group](#module\_api\_log\_group) | terraform-aws-modules/cloudwatch/aws//modules/log-group | ~> 3.0 |
 | <a name="module_lambdas"></a> [lambdas](#module\_lambdas) | terraform-aws-modules/lambda/aws | ~> 3.1 |
+| <a name="module_records"></a> [records](#module\_records) | terraform-aws-modules/route53/aws//modules/records | ~>2.0.0 |
 
 ## Resources
 
