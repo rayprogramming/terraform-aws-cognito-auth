@@ -2,6 +2,7 @@ import AWSXRay from "aws-xray-sdk-core";
 import AWSNoXRay from "aws-sdk";
 import dotenv from "dotenv";
 import hashSecret from "./helpers/hashSecret";
+import parseAWSError from "./helpers/parseAWSError";
 
 const AWS = AWSXRay.captureAWS(AWSNoXRay);
 
@@ -33,26 +34,33 @@ const provider = new AWS.CognitoIdentityServiceProvider({
 });
 
 // Handler
-exports.handler = function(event, callback) {
+exports.handler = function(event, context, callback) {
+  var body;
+  if (event.body !== null && event.body !== undefined) {
+    body = JSON.parse(event.body);
+  } else{
+    callback(new Error("Expected post Body"));
+  }
+
   const segment = new AWSXRay.Segment("register_user");
   try {
-    verifyBody(event.body);
+    verifyBody(body);
   } catch (error) {
     callback(new Error(error));
     return false;
   }
   var params = {
     ClientId: process.env.CLIENT_ID,
-    Password: event.body.password,
-    Username: event.body.email,
+    Password: body.password,
+    Username: body.email,
     UserAttributes: [
       {
         Name: "email",
-        Value: event.body.email
+        Value: body.email
       },
       {
         Name: "phone_number",
-        Value: event.body.phone_number
+        Value: body.phone_number
       }
     ]
   };
@@ -67,9 +75,9 @@ exports.handler = function(event, callback) {
       return true;
     })
     .catch(err => {
+      callback(null, parseAWSError(err));
       segment.close();
-      callback(new Error(err));
-      return false;
+      return true;
     }).finally(() => {
       segment.close();
     });
