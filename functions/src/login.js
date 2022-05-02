@@ -1,6 +1,8 @@
 import AWSXRay from "aws-xray-sdk-core";
 import AWSNoXRay from "aws-sdk";
 import dotenv from "dotenv";
+import hashSecret from "./helpers/hashSecret";
+import parseAWSError from "./helpers/parseAWSError";
 
 const AWS = AWSXRay.captureAWS(AWSNoXRay);
 
@@ -11,35 +13,33 @@ const provider = new AWS.CognitoIdentityServiceProvider({
 });
 
 
-exports.handler = function(event, callback) {
+exports.handler = function(event, context, callback) {
+  var body;
+  if (event.body !== null && event.body !== undefined) {
+    body = JSON.parse(event.body);
+  } else{
+    callback(new Error("Expected post Body"));
+  }
   const segment = new AWSXRay.Segment("login_user");
-  if (!event.body || !event.body.email || !event.body.password) {
+  if (!body || !body.email || !body.password) {
     callback(new Error("Invalid parameters."));
     return false;
   }
 
-  var poolData = {
-    UserPoolId: process.env.POOL_ID,
-    ClientId: process.env.CLIENT_ID
+  var params = {
+    "AuthFlow": "USER_PASSWORD_AUTH",
+    "ClientId": process.env.CLIENT_ID,
+    "AuthParameters": {
+      "USERNAME": body.email,
+      "PASSWORD": body.password
+    }
   };
-
-  var userPool = provider.CognitoUserPool(poolData);
-  var authData = {
-    Username: event.body.email,
-    Password: event.body.password
-  };
-
-  var authDetails = provider.AuthenticationDetails(authData);
-  var userData = {
-    Username: event.body.email,
-    Pool: userPool
-  };
-
-  var cognitoUser = provider.CognitoUser(userData);
-
-  cognitoUser.authenticateUser(authDetails).promise()
+  hashSecret(params.AuthParameters, "USERNAME", "SECRET_HASH");
+  console.log(params);
+  provider.initiateAuth(params).promise()
     .then(data => {
       segment.close();
+      console.log(data);
       callback(null, {
         success: true,
         data: data
@@ -48,10 +48,12 @@ exports.handler = function(event, callback) {
     })
     .catch(err => {
       segment.close();
-      callback(new Error(err));
+      console.log(err);
+      callback(null, parseAWSError(err));
       return false;
     }).finally(() => {
       segment.close();
     });
+  console.log("other");
   return false;
 };

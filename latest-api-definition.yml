@@ -24,7 +24,33 @@ components:
           type: string
         phone_number:
           type: string
+    confirm:
+      description: Confirmation Body
+      type: object
+      properties:
+        username:
+          type: string
+          description: email
+        confirmation_code:
+          type: string
+    login:
+      description: Login Body
+      type: object
+      properties:
+        email:
+          type: string
+          description: email
+        password:
+          type: string
   examples:
+    login:
+      value:
+        email: example@example.com
+        password: "password"
+    confirm:
+      value:
+        username: Email
+        confirmation_code: "123456"
     Register:
       value:
         email: example@example.com
@@ -33,8 +59,82 @@ components:
         phone_number: "5555550555"
 
 paths:
+  /:
+    get:
+      responses:
+        '200':
+          description: "No application"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    default: "We are currently not taking in new registrations"
+        '500':
+          description: "Internal Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    default: 'Internal Server Error'
+
+  /login:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/login'
+            examples:
+              objectExample:
+                $ref: '#/components/examples/login'
+      responses:
+        '200':
+          description: 'Successful login'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    success:
+                      type: boolean
+                      default: true
+                    data:
+                      type: object
+                      properties:
+                        ChallengeParameters:
+                          type: object
+                        AuthenticationResult:
+                          type: object
+                          properties:
+                            AccessToken:
+                              type: string
+                            ExpiresIn:
+                              type: integer
+                            TokenType:
+                              type: string
+                            RefreshToken:
+                              type: string
+                            IdToken:
+                              type: string
+
+        default:
+          description: "Default response for POST /login"
   /confirm:
     post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/confirm'
+            examples:
+              objectExample:
+                $ref: '#/components/examples/confirm'
       responses:
         default:
           description: "Default response for POST /confirm"
@@ -50,5 +150,50 @@ paths:
                 $ref: '#/components/examples/Register'
 
       responses:
+        '200':
+          description: 'Registration Succesful'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  data:
+                    type: object
+                    properties:
+                      UserConfirmed:
+                        type: boolean
+                        default: false
+                      CodeDeliveryDetails:
+                        type: object
+                        properties:
+                          Destination:
+                            type: string
+                            default: "e***@e***"
+                          DeliveryMedium:
+                            type: string
+                            default: EMAIL
+                          AttributeName:
+                            type: string
+                            default: email
+                      UserSub:
+                        type: string
+                        default: "bjhk2134kj-234d-234n-890d-fd932rjklio"
+
+        '400':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    default: "NotAuthroizedException"
+                  message:
+                    type: string
+                    default: "SignUp is not permitted for this user pool"
         default:
           description: "Default response for POST /register"
