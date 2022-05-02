@@ -5,8 +5,7 @@ exports.handler = function(event, callback) {
   let res = {
     "message": "We are currently not taking in new registrations"
   };
-  let response = JSON.encode(res);
 
   segment.close();
-  callback(null, response);
+  callback(null, res);
 };
