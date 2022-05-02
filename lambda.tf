@@ -72,6 +72,12 @@ module "lambdas" {
   source_path           = "${path.module}/functions/dist/${each.value.file}.js"
   tracing_mode          = "Active"
   environment_variables = try(each.value.environment_variables, {})
+  allowed_triggers = {
+    AllowExecutionFromAPIGateway = {
+      service    = "apigateway"
+      source_arn = "${module.api_gateway.apigatewayv2_api_execution_arn}/*/*"
+    }
+  }
   tags = {
     Name = "${var.project}-${var.env}"
   }
